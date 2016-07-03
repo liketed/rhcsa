@@ -1,0 +1,78 @@
+Configure firewall settings using firewall-config, firewall-cmd, or iptables
+	$ systemctl status firewalld
+	$ firewall-cmd --state
+	$ firewall-cmd --get-active-zones
+	$ firewall-cmd --zone=public --list-all
+	$ firewall-cmd --get-services
+	$ firewall-cmd --zone=public --add-service=http
+	$ firewall-cmd --zone=public --permanent --add-service=http
+	$ firewall-cmd --zone=public --add-service=https
+	$ firewall-cmd --zone=public --permanent --add-service=https
+	$ firewall-cmd --reload
+	$ firewall-cmd --permanent --add-forward-port=port=2222:proto=tcp:toport=22:toaddr=192.168.122.22
+
+Configure key-based authentication for SSH
+	$ ssh-keygen -t rsa -b 2048
+	$ ssh-copy-id -i .ssh/new_key 
+	$ sed -i s/PasswordAuthentication\ yes/PasswordAuthentication\ no/g /etc/ssh/sshd_confg
+	$ sed -i s/PubkeyAuthentication\ no/PubkeyAuthentication\ yes/g /etc/ssh/sshd_confg
+	$ systemctl restart sshd
+	$ ssh new server to test
+
+Set enforcing and permissive modes for SELinux
+	$ getenforce
+	$ sestatus
+	$ setenforce 0,1
+	$ vi /etc/selinux/config
+	$ getsebool -a
+	$ setsebool -a
+
+List and identify SELinux file and process context
+	$ # Add Z to ps and ls
+	$ ps auxZ
+	$ ls -lZ
+
+Restore default file contexts
+	$ # Restore default SELINUX contexts
+	$ restorecon -R /path
+
+Use boolean settings to modify system SELinux settings
+	$ getsebool -a | grep ftp
+	$ setsebool -P ftp_home_dir on
+Diagnose and address routine SELinux policy violations
+	$ yum whatprovides */sepolicy
+	$ yum -y install policycoreutils-devel
+	$ sepolicy --help
+	$ sepolicy manpage -a -p /usr/share/man/man8
+	$ mandb
+	$ man -k _selinux
+	$ man httpd_selinux`
+	$ 
+
+
+Task:
+# Change ssh daemon to run on port 8991
+	$ sed -i s/22/8991/g /etc/ssh/sshd_config
+	$ systemctl restart sshd
+	$ grep denied /var/log/audit/audit.log
+	$ grep AVC /var/log/audit/audit.log
+	$ yum install policycoreutils-python
+	$ man semange
+	$ man semange-port
+	$ semange port -a -t ssh_port_t -p tcp 8991
+	$ firewall-cmd --zone=public --add-port=8991/tcp
+	$ firewall-cmd --reload
+
+Task:
+# Allow httpd process to talk to sendmail
+	# I imagine this selinux boolean would show in audit.log also
+	$ grep denied /var/log/audit/audit.log
+	$ semanage boolean -1 | grep httpd_can_sendmail
+	$ setsebool -P httpd_can_sendmail 1
+	$ semanage boolean -1 | grep httpd_can_sendmail
+
+Task:
+# Allow httpd to read from a directory other than the default one
+	
+
+

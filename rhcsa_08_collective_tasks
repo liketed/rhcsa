@@ -1,0 +1,47 @@
+# You have in front of you a fresh rhel 7.2 installation. 
+# Configure the machine to boot as default into the gnome desktop.
+# Create 3 virtual machines with the following common specifications:
+# name: vm{1,2,3}, 5GB vda, 5GB vdb, 192.168.122.14{1,2,3}/24, gateway 192.168.122.1, dns 192.168.122.1
+
+	$ virt-install --name vm1 ---memory 1024 --disk size=10 --disk size=10 --cdrom /var/lib/libvirt/images/CentOS.iso
+	$ # "ks=http://192.168.122.147/static/ks1.cfg ksdevice=eth0 ip=192.168.122.141 netmask=255.255.255.0 dns=192.168.122.1 gateway=192.168.122.1"
+
+	# On vm1, boot from cdrom, and kickstart from http://192.168.122.147/ks/ks1.cfg
+	# The new machine needs more disk space because it only used /dev/vda during kickstart, use /dev/vdb as new physical volume.
+	# Add the new PV to the existing VG
+	# Extend the swap LV to 1G, ( note not BY 1G )
+	# Use remaining space to increase the LV centos-root.
+	$ pvcreate /dev/vdb
+	$ pvdisplay
+	$ vgdisplay
+	$ vgextend centos /dev/vdb
+	$ vgdisplay
+	$ lvdisplay
+	$ lvextend -L 1G /dev/centos/swap
+	$ swapoff /dev/centos/swap
+	$ mkswap /dev/centos/swap
+	$ swapon /dev/centos/swap
+	$ lvextend -l +100%FREE /dev/centos/root
+	$ lvdisplay
+	$ xfs_growfs /dev/mapper/centos-root
+	$ reboot
+
+	# boot the next machine vm2 with ks2.cfg
+	$ kickstart the next machine from ks2.cfg
+	$ The partitions are not optimal, by default it is 512MB boot, 1200MB /, and the remaining for swap. 
+	$ reduce swap LV to 1G. 
+	$ increase / to remaining left over space previously used by swap.
+
+	# Boot vm3 from ks3.cfg
+	# You have a warning from the data center engineers, that /dev/vda is reporting will fail soon. /root on PV /dev/vda contains super important data.
+	# Move using lvm tools /root partition to dev/vdb. Ignore any currect partitions on /dev/vdb, /root is more important. 
+	$ pvcreate /dev/vdb
+	$ vgextend centos /dev/vdb
+	$ pvmove -n lv_root /dev/vda2 /dev/vdb
+	$ lvs -a -o+devices
+
+	# ks4.cfg, not finished this yet.
+	# Any existing contents on /dev/vdb can be ignore.
+	# Create a GPT disklabel on /dev/vdb. 
+	# Create a primary partition with all of the free space on /dev/vdb
+	# Format the partition using the xfs filesystem.

@@ -1,0 +1,95 @@
+Configure networking and hostname resolution statically or dynamically
+	$ systemctl disable NetworkManager
+	$ systemctl mask NetworkManager
+	$ vim /etc/hostname
+	$ vim /etc/sysconfig/network-scripts/ifcfg-interface
+	$ vim /etc/nsswitch.conf
+	$ vim /etc/hosts
+	$ vim /etc/resolv.conf
+
+Schedule tasks using at and cron
+	$ # I reckon here is a good place for redhat to throw a curve ball, test your crons incase crond is broken or disabled especially after reboot.
+	$ # Perhaps also an selinux problem could be thrown in here, but I doubt it, if so I hope my selinux debugging is good enough.
+	$ The /etc/cron.allow file: if exists, only these users are allowed (cron.deny is ignored).
+	$ ls /etc/cron.allow /etc/cron.deny
+	$ man cron
+	$ vim /etc/cron.d/*
+	$ vim /etc/cron.d/newcron 
+	$ # run cron every minute to test path, permissions, etc, tail /var/log/cron
+
+	$ yum install -y at
+	$ systemctl enable atd
+	$ systemctl start atd
+	$ at 15:00 today
+	$ at> /usr/bin/command args
+	$ ^D    # (Ctrl + D)
+	$ atq
+	$ at -c 3
+
+Start and stop services and configure services to start automatically at boot
+	$ systemctl everything
+
+Configure systems to boot into a specific target automatically
+	$ systemctl get-default
+	$ systemctl set-default graphical.target
+
+Install Red Hat Enterprise Linux automatically using Kickstart
+	$ # I presume cd-rom, because if it was pxe it should probably automatically install already, perhas this even gives the wrong impression of how pxe should work!!
+	$ # booting using cd-rom, hit tab to edit boot options, and use the provided URL.
+	$ # Redhat will provide the ks url, probably nfs or http
+	$ # If you use a boot option which requires network access, such as inst.ks=http://host/path, 
+	$ # without specifying the ips option, the installation program will use ip=dhcp, you can all add append ip=dhcp to be certain.
+	$ ks=http://192.168.122.57/ks/ks1.cfg append ip=192.168.122.58 netmask=255.255.255.0
+	$ ks=cdrom:/ks.cfg
+	$ ks=nfs:server.testcenter.com:/kickstart/ks.cfg append ip=192.168.122.58 netmask=255.255.255.0
+
+Configure a physical machine to host virtual guests
+	$ # I'm guessing this means simply install kvm utilities
+	$ yum group install "Virtualization Host"
+	$ systemctl enable libvirtd
+	$ systemctl start libvirtd
+
+Install Red Hat Enterprise Linux systems as virtual guests
+	# I think I'm gonna rely on my guess that the GUI is available for this task on the host OS, otherwise there is ample help in the man pages.
+	# If they ask for 8 different vms to be created, perhaps the virt-install command line tool will be quicker. 
+	$ man virt-install; virt-install --help
+
+Configure systems to launch virtual machines at boot
+	$ virsh list --autostart
+	$ virsh autostart vm1
+	$ virsh autostart vm1 --disable
+
+Configure network services to start automatically at boot
+	# keyword = network, I think this is chkconfig command
+	# Is there an implication here that network manager will be disabled?
+	$ chkconfig --list
+	$ systemctl disable NetworkManager
+	$ chkconfig network on
+
+Configure a system to use time services
+	$ yum install -y chrony
+	$ systemctl enable chronyd
+	$ systemctl start chronyd
+	$ systemctl disable ntpd
+	$ ps auxw|grep chronyd
+	$ chronyc
+	$ ps auxw|grep ntp
+
+Install and update software packages from Red Hat Network, a remote repository, or from the local file system
+	$ yum search package
+	$ yum search all package
+	$ # Think of this as a regex file path, start of path is unknown sbin, bin, usr, etc, but end of path could be better known.
+	$ yum whatprovides "*/lsof"
+	$ yum localinstall pkg.rpm	# nicer because yum.log gets updated
+	$ rpm -Uvh pkg.rpm		# Upgrade pkg, BUT not for kernel, what if the kernel supplied is not working and it is removed, we have unusable system?
+	$ rpm -ivh kernel.rpm  		# Install, but not upgrade, for kernel.
+
+Update the kernel package appropriately to ensure a bootable system
+	$ # if given a .rpm file, and if you normally use rpm -U, update, then it will try to replace the current kernel instead of install an additional.
+	$ rpm -ivh kernel.rpm
+	$ yum update kernel
+
+Modify the system bootloader
+	$ vim cat /etc/default/grub
+	$ cp /boot/grub2/grub.cfg /boot/grub2/grub.cfg.bak
+	$ grub2-mkconfig > /boot/grub2/grub.cfg

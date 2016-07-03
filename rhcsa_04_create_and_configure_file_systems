@@ -1,0 +1,42 @@
+Create, mount, unmount, and use vfat, ext4, and xfs file systems
+	$ mkfs.ext4; mkfs.xfs /dev/device; blkid /dev/device; vim /etc/fstab; mount -a
+Mount and unmount CIFS and NFS network file systems
+	$ # NFS
+	$ yum install nfs-utils
+	$ man nfs |grep -A 3 example
+	$ mkdir /data
+	$ cp /etc/fstab{,.bak}
+	$ echo "nfsserver:/data /data nfs defaults 0 0" >> /etc/fstab
+	$ mount -a
+
+	$ # CIFS
+	$ yum install -y cifs-utils
+	$ yum install -y samba-client
+	$ mkdir /mnt/shared
+	$ echo "//192.168.50.50/shared /mnt/shared cifs rw,username=user01,password=user01 0 0"
+	$ mount -a
+
+Extend existing logical volumes
+	$ man lvextend
+	$ lvextend
+	$ lvextend -L 1G /dev/centos/swap
+	$ lvextend -l +100%FREE /dev/centos/root
+
+Create and configure set-GID directories for collaboration
+	$ groupadd -g 1000 it
+	$ mkdir /test
+	$ chgrp it /test
+	$ chmod 2755 /test
+	$ touch /test/it
+	$ ls -lh /test/
+
+Create and manage Access Control Lists (ACLs)
+	$ man getfacl
+	$ man setfacl
+
+Diagnose and correct file permission problems
+	$ # Let user bob read file /test/it. bob must retain wheel group as primary group.
+	$ ls -lh /test/it
+	$ usermod -G wheel,it bob
+	$ # let user bob write to the file /test/touch through a change in group ownership
+	$ chmod 775 /test/touch

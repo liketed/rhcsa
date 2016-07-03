@@ -1,0 +1,34 @@
+Create, delete, and modify local user accounts.
+	$ useradd -u 502 -G wheel -s /bin/bash -d /home/somename/ somename
+        $ useradd -u 503 -G wheel -s /bin/bash -d /home/david david
+        $ userdel -rf david  # (remove home dir / mail too)
+	$ usermod -a -G somenewgroup someuser
+
+Change passwords and adjust password aging for local user accounts
+	$ passwd user
+	$ chage -M 30 david; # expire password in 30 days
+	$ chage -l david;    # display david's account info
+
+Create, delete, and modify local groups and group memberships
+	$ groupadd sales
+	$ groupmod -n sales salesforce
+	$ groupmod -g 5500 salesforce
+	$ groupdel salesforce
+	$ groupmems -g sales -a bob
+
+Configure a system to use an existing authentication service for user and group information
+	# This is the one that I never experienced before. I guess this might be for where redhat is installed on 100 workstations, and not 100 puppet driven servers.
+	# The info for server and base DN should be provided in the examination.
+        # If only something like this is provided: "ldap://ldapserver.rhcsa.lab", then I think the "LDAP Search Base DN" is like this: "dc=ldapserver,dc=rhcsa,dc=lab"
+        # authconfig-tui looks pretty straightforward, and I'm guessing its enough to pass this point of the exam
+	# Hmm, more reading online implies nfs server mounting of home dirs. FUgly.
+
+        $ yum -y install openldap-clients nss-pam-ldapd
+        $ authconfig-tui
+	# If ldaps, then enter fqdn and ensure fqdn is resolvable from client host, else SSL errors.
+        $ su ldap-user-given-from-redhat-as-example
+	$ scp root@ldapserver:/etc/openldap/certs/cert.pem /etc/openldap/cacerts/cert.pem
+	$ restorecon /etc/openldap/cacerts/cert.pem
+	$ getent passwd ldapuser02
+
+	$ # TODO autofs

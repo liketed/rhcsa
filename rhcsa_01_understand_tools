@@ -1,0 +1,39 @@
+## Chapter 1 according to https://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam
+
+Access a shell prompt and issue commands with correct syntax
+	$ ctrl+alt+fX to change TTY;
+Use input-output redirection (>, >>, |, 2>, etc.)
+        $ ls nonexisting existing > STDOUT 2>&1   ## ls an existing and non existing file, generates stdout and stderr. 
+Use grep and regular expressions to analyze text
+	$ grep 'root' /etc/passwd; grep nologin /etc/passwd; cat /etc/passwd |sed s#/bin/bash##g
+Access remote systems using ssh
+	$ ssh user@127.0.0.1
+Log in and switch users in multiuser targets
+        # in a gnome interface, how to log in as different users???
+	$ su - john; su - user; su;
+Archive, compress, unpack, and uncompress files using tar, star, gzip, and bzip2
+	$ gzip STDOUT; gunzip STDOUT.gz; 
+        $ tar czvf files.tar.gz files/
+	$ tar zvf files.tar.gz   # list files in archive
+	$ tar tzf files.tar.gz   # list files in archive
+	$ # install star
+	$ yum install -y star
+	$ # Create file opt.star and save all extended attribs record headers with acl
+	$ star -xattr -H=exustar -c -f=test.star /test/
+	$ # Extract archive 
+	$ star -x -f=test.star
+Create and edit text files
+        $ vim file
+Create, delete, copy, and move files and directories
+        $ touch file; cp file file1; rm file1; mv file file1; mkdir test; mkdir test/test/test -p;
+Create hard and soft links
+        $ ln -s file symlinkedfile
+        $ ln file file2
+        $ ls -il                 # ls with inode
+List, set, and change standard ugo/rwx permissions
+        $ chmod 644 file; chmod 755 dir; chgrp; stat -c '%A %a %n' *; # I personally like the stat command because if something has weird permissions I prefer to look at and set octal notation. 
+	$ getfacl; setfacl; man getfacl;
+Locate, read, and use system documentation including man, info, and files in /usr/share/doc
+	$  
+
+

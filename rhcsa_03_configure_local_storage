@@ -1,0 +1,41 @@
+	# My idea about this whole section is that you will be handed a system with partitions that need removing, and then you will create new partitions / lvms to replace the old. I dont think they will ask you to create 3 partitions, then delete 2, because it's harder or more effort to track this activity, even for a start all commands typed into parted wont be trackable like bash history. No, they will test the outcome, the end result. More likely it will be an existing vm on the host OS, or a machine we have created as a task, and the kickstart.cfg used has configured the partitions in a wrong way that must be fixed.
+	# Let's say we are asked to create a vm with a 10G /dev/vda. We are asked to kickstart from a url, and this ks is configured to only use 7G of space in total.
+	# Now, we are asked to work with the unused/free space, or maybe even an asked to modify a created partition and re-incorporate into the vm.
+
+List, create, delete partitions on MBR and GPT disks
+	$ parted
+	(parted) select /dev/vdb
+	(parted) print all
+	(parted) mktable gpt
+	(parted) mktable msdos
+	(parted) mkpart primary ext4 1MB 1GB
+	(parted) mkpart primary linux-swap 1GB -1
+	$ partprobe 			# for the kernel to pickup new partitions
+	$ cat /proc/partitions		# to see what the system sees
+Create and remove physical volumes, assign physical volumes to volume groups, and create and delete logical volumes
+	$ lsblk -a
+	$ lvm help
+	$ pvs
+	$ pvscan
+	$ pvdisplay
+	$ pvcreate /dev/vdb /dev/vdc
+	$ vgcreate example /dev/vdb /dev/vdc
+	$ vgremove -v example
+	$ vgreduce -v example /dev/vdb
+	$ vgextend -v example /dev/vdb
+	# actually exam objectives dont say anything about reduce/extend.
+	$ ls -l /dev/example/
+	$ lvcreate -L 512M -n data example
+	$ lvdisplay
+	$ lv
+Configure systems to mount file systems at boot by Universally Unique ID (UUID) or label
+	$ cp /etc/fstab{,.bak}; blkid /dev/vdb1 >> /etc/fstab
+Add new partitions and logical volumes, and swap to a system non-destructively
+	$ lvcreate -L 256M -n swap example
+	$ mkswap /dev/example/swap
+	$ vim /etc/fstab
+	$ free -m    # check swapspace before
+	$ swapon -v /dev/example/swap
+	$ free -m
+	$ swapon -s
+	# reboot to check swap is enabled 

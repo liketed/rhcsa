@@ -1,0 +1,29 @@
+My objective is a pass mark, not 210, that would be not so good, but 300 looks like more memorisation than I think is really useful in on the job. I've been a *nix admin for 10 years and having every detail of the RHCSA / RHCE memorized has not been a necessity to be good at my job for 10 years. Theses days I would say that unless there is a natural disater closeby then there is both an internet device and internet at my finger tips. Between DSL/Cable/GSM, iphone, spare laptop, etc. I would say that before even looking in detail at the exam objectives that I have maybe 50% of the exam fluent in my head, out of the other 50%, I've seen it all before except SELINUX which was always disabled or not used anywhere I worked. So for that remaining 35% (excluding say SELINUX), yes I have used it before, most of the time with internet access to assist. To finish what I first said here, a score of 260-280 would make me happy and thats my goal.
+
+A comment I found online:
+"Redhat's instructions in the exam were very clear, concise, and never left you at a loose end having to make decisions on your own. Think of it this way: You are an operator being given instructions, and you merely have to execute them."
+My own interpretation of that put into an example form will be:
+"Create a virtual machine named vm3, with 1 gigabyte of ram, 10G disk space, natted network, kickstart the machine from http://192.168.122.147/ks/ks3.cfg"
+"vm3 has a working network configuration because of dhcp. Configure the device to have a static address of 192.168.122.203 on eth0.
+"Create a cron job that will run `sar -A` every night at 10pm, it will append both STDOUT and STDERR to the file /root/sar.log"
+"Using the device /dev/vdb to add to the existing VG named centos, Increase the size of the swap LV from 512M to 1024M, and the size of /root LV to use the remaining space. Ignore any current state of /dev/vdb"
+"Mount NFS directory from 192.168.122.147/share to /shared. Ensure the mount is persistent through reboots. Ensure bob and tim from group 'caring' can read and write to the new mount."
+
+Common sense might also have to come into account. I've read online no specifics of the exam, apart from that out of 2.5 hours allocated, some people are able to finish in 1-1.5 hours, so I hope to be able to read over the exam plenty, and check over my exam, and hope that this allows for the "bigger picture". I mean, thats our job, right? If the boss asks something, but leaves out a detail, there's no need to correct him or waste 30 minutes drilling down into a miniscule detail, but there is a need to fix the missing part of his request in order to get the job done. I hope this attitude applies here.
+
+RHCSA topics crossover.
+Most of the 7 main groups crossover into each other. Like essential tools and manage users, or like local storage and file systems, virtual machines is mentioned in 2 different sections. The information is not really useful on a topic by topic basis, instead it is only useful if you can use all of the info from all sections simultaneously. In the exam I expect they will ask questions that use skills from all objectives not individual, "Here is a large goal, do it"
+
+RHCE Crossover
+Some of the RHCSA topics require configuring clients, which is impossible to test locally without also having the server side setup, the server side services I see are RHCE topics (except for ldap), and my objective is to attain RHCE, so I dont mind studying these topics. Already diving into the RHCE SMB, NFS and HTTP topics may help in the last section "Manage security".
+
+Level of detail
+Some of the topics are vague in the detail we need to go into, like local storage, filesystems, ensure a bootable system, selinux. If its a RHCE topic, I will go into more detail as it will come up in RHCE anyways, and if its not, I'm only going so far, how far... I dont know. Pay attention to the objectives, "Configure local storage", Is the word reduce in there anywhere? No. But I've seen an RHCSA guide online showing how to do this. Perhaps it used to be an objective and was since removed. I know that RHCSA 6 exam had encrypted volumes in it, this is no longer in the version 7 exam.
+
+What I think is coming?
+I think we will be given a host system with GUI, we wont modify this machine all. On top of this I think will be 2-4 vms some which will be broken/unbootable. The idea is that some other sysadmin has worked on these systems and we need to pickup the pieces, also, we configure networking on each problem machine so that the test-check-script from redhat can login at test our results on each vm. Our goal in real life is to leave an installation stable, secure, working, rebootable, same in the RHC{SA,E}. We will also probably have to create some new vms as that is an exam topic. Another reason I think this way is because if we screw up a test VM, we can re-kickstart it in order to restart an objective, and not totally ruin our chances of passing. If dangerous modifications were to happen to the host OS we have a much higher chance of not being able continue and restart the exam. 
+
+Importance of certain ideas:
+If you cannot break the root password to get into a machine/VM, then you cannot do anything else...
+If you cannot install/start/enable virtual machines to autostart, then the apache server or what-ever is running inside will also not autostart, systemctl enable or firewall port fixing was useless because virsh autostart was not enabled, reboot your host machine also ( if possible )!!
+All the way from source to finish, from root password break, to autostart vms providing services, what redhat will test you on is "Is the complete thing working after restart"?

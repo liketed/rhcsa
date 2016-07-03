@@ -1,0 +1,44 @@
+# Tips and tricks RHCE:
+
+While preforming the RHCE exam reboot your system after configuring each service to check that everything is persistent.
+After reboot, check that selinux, firewall-cmd, and service is running ( may not be so obvious with ntp/cron/etc ) 
+
+# Using /root/pre-made-kickstart.ks, serve this file from /ks/ using httpd or nfs to allow remote kickstarting.
+kickstart server
+	$ yum install httpd
+	$ systemctl enable httpd
+	$ firewall-cmd --permanent --add-port=80/tcp
+	$ firewall-cmd --reload
+	$ mkdir /var/www/kickstart
+	$ cp /root/anaconda-ks.cfg /var/www/kickstart/
+	$ chcon --type httpd_sys_content_t /var/www/kickstart/*
+	$ semanage fcontext -a -t httpd_sys_content_t "/custom(/.*)?"
+	$ chown -R apache:apache /var/www/kickstart
+	$ cp /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/kickstart.conf
+	$ # Alias /kickstart /var/www/kickstart
+	$ # <Directory /var/lib/kickstart>
+	$ # DirectoryIndex disabled
+	$ systemctl start httpd
+	$ grub add: ks=http://192.168.122.57/kickstart/anaconda-ks.cfg append ip=192.168.122.58 netmask=255.255.255.0
+
+nfs server
+	$ yum -y install nfs-utils
+	$ vi /etc/idmapd.conf
+	## line 5: uncomment and change to your domain name
+	## Domain = srv.world
+	$ man exports | grep 192
+	$ vi /etc/exports
+	# /home 192.168.122.0/24(rw)
+	$ systemctl enable rpcbind nfs-server 
+	$ systemctl start rpcbind nfs-server 
+	$ firewall-cmd --add-service=nfs --permanent 
+	$4 firewall-cmd --reload 
+
+samba server
+	$ # Setup a samba server to serve directory /myshare to a user called micky with password 12345678. The workgroup should be called myshare. 
+	$ # micky should have read access to /myshare/* and write access to /myshare/write/*
+	$ yum install -y samba samba-client samba-common
+	$ mkdir /myshare
+	$ touch /myshare/test
+	$ semanage fcontext -a -t samba_share_t "/myshare(/.*)?"
+
